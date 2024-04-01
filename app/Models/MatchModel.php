@@ -23,16 +23,16 @@ class MatchModel extends Model
 
     public function home()
     {
-        return $this->belongsTo(Club::class, 'id', 'home_id');
+        return $this->belongsTo(Club::class, 'home_id');
     }
 
     public function away()
     {
-        return $this->belongsTo(Club::class, 'id', 'away_id');
+        return $this->belongsTo(Club::class, 'away_id');
     }
     public function bettingHistory()
     {
-        return $this->hasMany(Club::class, 'match_id', 'id');
+        return $this->hasMany(BettingHistory::class, 'match_id');
     }
     
 }

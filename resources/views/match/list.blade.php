@@ -36,7 +36,7 @@
         <td>{{ 'x' . $match->betting_odds }}</td>
         <td>{{ $match->result == '' ? '-' : $match->result }}</td>
         <td>
-          <a href="{{route('match.userBettingList')}}">User Betting List</a>
+          <a href="{{route('match.userBettingList', ['matchId' => $match->id])}}">User Betting List</a>
         </td>
         <td>{{ $match->is_public ? 'Public' : 'Private' }}</td>
         <td>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,27 +15,28 @@ class AuthenticationController extends Controller
     return view('authentication.login');
   }
 
-  public function postLogin(Request $request) {
+  public function postLogin(Request $request)
+  {
     try {
       $credentials = $request->validate([
         'email' => ['required', 'email'],
         'password' => ['required'],
       ]);
-
+      // dd(222, Hash::make('12345678'));
       if (Auth::attempt($credentials)) {
         $request->session()->regenerate();
-
-        return Redirect()->route('match.list');
+  
+        return redirect()->intended('match.list');
       }
-
+  
       return back()->withErrors([
-        'email' => 'Email ko chinh xac!!',
+        'email' => 'The provided credentials do not match our records.',
       ])->onlyInput('email');
-    } catch (\Exception $e) {
-      dd($e->getMessage());
+    } catch(\Exception $e) {
+      dd($e);
     }
+    
   }
-
   public function getRegister(Request $request)
   {
     return view('authentication.register');
@@ -49,7 +50,6 @@ class AuthenticationController extends Controller
       'email' => ['required', 'unique:users', 'regex:/^[a-zA-Z0-9]+@(gmail\.com)$/'],
       'pass' => ['required', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/'],
       're-pass' => ['required', 'same:pass'],
-      // 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/'
     ]);
 
     $data = [

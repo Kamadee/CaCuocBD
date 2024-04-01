@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Club;
 use App\Models\MatchModel;
+use App\Models\BettingHistory;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-
-
 class MatchController extends Controller
 {
     public function createFormMatch(Request $request)
@@ -92,10 +92,9 @@ class MatchController extends Controller
 
     public function postEditMatch(Request $request)
     {
-
         $matchId = $request->matchId;
-
         try {
+            DB::beginTransaction();
             $matchTime = $request->match_time;
             $matchTimeArr = explode('-', $matchTime);
             $startMatch = $matchTimeArr[0];
@@ -118,6 +117,7 @@ class MatchController extends Controller
                 'betting_odds' => 'required|numeric|min:0',
                 'betting_odds_stop' => 'required|date|before:startMatch',
                 'isPublic' => Rule::in(['1']),
+                'score' =>  ['required'],
             ]);
             if ($validator->fails()) {
                 // Error
@@ -135,14 +135,41 @@ class MatchController extends Controller
                     'result' => $request->score,
                     'is_public' => $request->isPublic,
                 ];
-                MatchModel::where('id', $matchId)->update($data);
-                return Redirect()->route('match.detail', ['matchId' => $matchId]);
+            MatchModel::where('id', $matchId)->update($data);
+
+            $match = MatchModel::find($matchId);
+            if ($match->result) {
+                $userBettingList = BettingHistory::with('user')->where('match_id', $matchId)->get();
+                $scoreArr = explode('-', $match->result);
+                $homeClubResult = 0;
+
+                if ((int)$scoreArr[0] > (int)$scoreArr[1]) {
+                    $homeClubResult = 1;
+                } else if ($scoreArr[0] == $scoreArr[1]) {
+                    $homeClubResult = 2;
+                } else {
+                    $homeClubResult = 3;
+                }
+                $bettingOdds = $match->betting_odds;
+                foreach ($userBettingList as $userBetting) {
+                    $userChoice = $match->choice;
+                    $moneyBet = $match->money_bet;
+                    if ($userChoice == $homeClubResult) {
+                        $moneyWin = $moneyBet * $bettingOdds;
+                        $currentCoin = $userBetting->user->total_coin;
+                        $newCoin = $currentCoin + $moneyWin;
+                        User::where('id', $userBetting->user_id)->update('total_coin'->$newCoin);
+                    }
+                }
             }
+
+            DB::commit();
+            return Redirect()->route('match.detail', ['matchId' => $matchId]);
+        }
         } catch (\Exception $e) {
-            dd($e);
+            DB::rollBack();
         }
     }
-
     public function getMatchDelete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -159,7 +186,8 @@ class MatchController extends Controller
         }
     }
 
-    public function getUserBettingList(Request $request) {
+    public function getUserBettingList(Request $request)
+    {
         $matchId = $request->matchId;
         $validator = Validator::make($request->all(), [
             'matchId' => ['required', 'exists:matches,id']
@@ -170,7 +198,7 @@ class MatchController extends Controller
             return back()->withErrors($errors);
             // Handle the errors
         } else {
-            MatchModel::with(['bettingHistories','home','away','bettingHistories.user'])->where('id', $matchId)->first();
+            MatchModel::with(['bettingHistories', 'home', 'away', 'bettingHistories.user'])->where('id', $matchId)->first();
             return Redirect()->route('match.userBettingList');
         }
     }
