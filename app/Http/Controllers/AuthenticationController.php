@@ -62,6 +62,8 @@ class AuthenticationController extends Controller
     return redirect()->route('authentication.login')->withMessage('login sucess');
   }
 
+  
+
   // public function authenticate(Request $request): RedirectResponse
   // {
   //   $credentials = $request->validate([

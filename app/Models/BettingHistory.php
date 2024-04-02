@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class BettingHistory extends Model
 {
     use HasFactory;
-    protected $table = 'betting_histories'; 
 
     public function user()
     {

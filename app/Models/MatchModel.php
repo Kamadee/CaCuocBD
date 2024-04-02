@@ -30,7 +30,8 @@ class MatchModel extends Model
     {
         return $this->belongsTo(Club::class, 'away_id');
     }
-    public function bettingHistory()
+
+    public function bettingHistories()
     {
         return $this->hasMany(BettingHistory::class, 'match_id');
     }

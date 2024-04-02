@@ -12,10 +12,6 @@
 
 @section('content')
 <div class="container">
-  <div class="d-flex justify-content-end mt-3">
-    <a href="{{route('match.userAccountList')}}"><button type="submit" class="btn btn-success">User Account</button></a>
-    <a href="{{route('match.formCreateMatch')}}"><button type="submit" class="btn btn-success ">+ Add Match</button></a>
-  </div>
   <table class="table table-dark match-table">
 
     <thead>
@@ -24,9 +20,7 @@
         <td>Match time</td>
         <td>Betting Odds</td>
         <td>Score</td>
-        <td>Betting User List</td>
-        <td>Match Status</td>
-        <td>Action</td>
+        <td>Bet</td>
       </tr>
     </thead>
     <tbody>
@@ -37,12 +31,7 @@
         <td>{{ 'x' . $match->betting_odds }}</td>
         <td>{{ $match->result == '' ? '-' : $match->result }}</td>
         <td>
-          <a href="{{route('match.userBettingList', ['matchId' => $match->id])}}">User Betting List</a>
-        </td>
-        <td>{{ $match->is_public ? 'Public' : 'Private' }}</td>
-        <td>
-          <a href="{{route('match.detail', ['matchId' => $match->id])}}"><button class="btn btn-primary">Edit</button></a>
-          <button type="button" data-matchid="{{$match->id}}" data-matchname="{{$match->home->club_name . '-' . $match->away->club_name}}" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete</button>
+          <a href=""><button type="submit">Bet</button></a>
         </td>
       </tr>
       @endforeach

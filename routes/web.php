@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\MatchController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +43,11 @@ Route::group(['prefix' => 'match', 'as' => 'match'], function(){
 
     Route::post('/delete', [MatchController::class, 'getMatchDelete'])->name('.delete');
     Route::get('/{matchId}/userBettingList', [MatchController::class, 'getUserBettingList'])->name('.userBettingList');
+    Route::get('/userAccountList', [MatchController::class, 'getUserAccountList'])->name('.userAccountList');
 
+});
 
+Route::group(['prefix' => 'dashboard', 'as' => 'dashboard'], function(){
+    Route::get('/listMatch', [UserController::class, 'getListMatch'])->name('.listMatch');
 
 });
