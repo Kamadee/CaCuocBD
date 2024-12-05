@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\MatchController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,14 +29,15 @@ Route::group(['prefix' => 'authentication', 'as' => 'authentication', 'middlewar
     
     Route::get('/register',[AuthenticationController::class, 'getRegister'])->name('.register');
     Route::post('/post-register',[AuthenticationController::class, 'postRegister'])->name('.postRegister');
+    Route::post('/logOut',[AuthenticationController::class, 'logOut'])->name('.logOut')->withoutMiddleware(['guest']);
+
 });
 
-Route::group(['prefix' => 'match', 'as' => 'match'], function(){
+Route::group(['prefix' => 'match', 'as' => 'match', 'middleware' => ['auth','admin']], function(){
     Route::get('/formCreateMatch',[MatchController::class, 'createFormMatch'])->name('.formCreateMatch');
     Route::post('/postCreateMatch',[MatchController::class, 'postCreateMatch'])->name('.postCreateMatch');
 
     Route::get('/list', [MatchController::class, 'getMatchList'])->name('.list');
-    // Route::get('/list/{matchId}/user_betting', [MatchController::class, 'getMatchDetail'])->name('.22detail');
 
     Route::post('/postEditMatch/{matchId}', [MatchController::class, 'postEditMatch'])->name('.postEditMatch');
     Route::get('/{matchId}', [MatchController::class, 'getMatchDetail'])->name('.detail');
@@ -47,7 +48,11 @@ Route::group(['prefix' => 'match', 'as' => 'match'], function(){
 
 });
 
-Route::group(['prefix' => 'dashboard', 'as' => 'dashboard'], function(){
-    Route::get('/listMatch', [UserController::class, 'getListMatch'])->name('.listMatch');
+Route::group(['prefix' => 'customer', 'as' => 'customer', 'middleware' => ['auth']], function(){
+    Route::get('/listMatch', [CustomerController::class, 'getListMatch'])->name('.listMatch');
+    Route::get('/myHistoryBetting', [CustomerController::class, 'getHistoryBetting'])->name('.myHistoryBetting');
+    Route::post('/{matchId}/betting', [CustomerController::class, 'getBetting'])->name('.betting');
+    Route::get('/myAccount', [CustomerController::class, 'getMyAccount'])->name('.myAccount');
+    Route::get('/search', [CustomerController::class, 'search'])->name('.search');
 
 });

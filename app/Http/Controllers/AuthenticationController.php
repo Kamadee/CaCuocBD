@@ -18,25 +18,26 @@ class AuthenticationController extends Controller
   public function postLogin(Request $request)
   {
     try {
-      $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-      ]);
-      // dd(222, Hash::make('12345678'));
+      $credentials = $request->only('email', 'password');
+
       if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-  
-        return redirect()->intended('match.list');
+        // Đăng nhập thành công
+        $user = Auth::user();
+
+        if ($user->is_admin == 1) {
+          return redirect()->route('match.list');
+        } else {
+          return redirect()->route('customer.listMatch');
+        }
+      } else {
+        // Đăng nhập thất bại
+        return redirect()->back()->withInput()->withErrors('Đăng nhập không thành công');
       }
-  
-      return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-      ])->onlyInput('email');
-    } catch(\Exception $e) {
+    } catch (\Exception $e) {
       dd($e);
     }
-    
   }
+  
   public function getRegister(Request $request)
   {
     return view('authentication.register');
@@ -57,33 +58,15 @@ class AuthenticationController extends Controller
       'email' => $request->email,
       'password' => Hash::make($request->pass),
     ];
-
     $user = User::create($data);
+    // $user = new User();
+    $user->total_money = 5000;
+    // $user->save();
     return redirect()->route('authentication.login')->withMessage('login sucess');
   }
 
-  
-
-  // public function authenticate(Request $request): RedirectResponse
-  // {
-  //   $credentials = $request->validate([
-  //     'email' => ['required', 'email'],
-  //     'password' => ['required'],
-  //   ]);
-
-  //   if (Auth::attempt($credentials)) {
-  //     $request->session()->regenerate();
-
-  //     return redirect()->intended('dashboard');
-  //   }
-
-  //   return back()->withErrors([
-  //     'email' => 'The provided credentials do not match our records.',
-  //   ])->onlyInput('email');
-  // }
-
-  // public function loginForm(Request $request)
-  // {
-  //   return view('authentication/login');
-  // }
+  public function logOut() {
+    Auth::logout();
+    return redirect()->route('authentication.login');
+  }
 }

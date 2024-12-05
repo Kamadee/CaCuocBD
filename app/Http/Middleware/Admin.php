@@ -19,6 +19,6 @@ class Admin
       if (Auth::user()->is_admin) {
         return $next($request);
       }
-      return redirect('/');
+      return redirect('match.list');
     }
 }

@@ -179,7 +179,6 @@ class MatchController extends Controller
     }
     public function getMatchDelete(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'matchId' => ['required', 'exists:matches,id']
         ]);
@@ -217,4 +216,6 @@ class MatchController extends Controller
         $userList = User::select('id', 'email', 'username', 'total_coin')->get();
         return view('match.userAccountList', ['userList' => $userList]);
     }
+
+
 }

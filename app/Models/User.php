@@ -25,5 +25,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function bettingHistories()
+    {
+        return $this->hasMany(BettingHistory::class, 'user_id');
+    }
 }
     
